@@ -5,13 +5,16 @@
 #include <string.h>
 #include <locale.h>
 
-// Definindo as direções possíveis de movimento do cavalo
+// Definindo as direÃ§Ãµes possÃ­veis de movimento do cavalo
+// no tabuleiro de xadrez (8 movimentos possÃ­veis)
+// Cada movimento Ã© representado por um vetor de deslocamento (dx, dy)
+// Exemplo: {2, 1} significa mover 2 casas na horizontal e 1 na vertical
 int movimentos[8][2] = {
     {2, 1}, {1, 2}, {-1, 2}, {-2, 1},
     {-2, -1}, {-1, -2}, {1, -2}, {2, -1}
 };
 
-// Protótipos das funções
+// ProtÃ³tipos das funÃ§Ãµes
 bool resolver_passeio(int N, int M, int x_inicial, int y_inicial);
 bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *visitado);
 bool posicao_valida(int x, int y, int N, int M);
@@ -29,29 +32,29 @@ int main() {
     char coord[3];
     int x_inicial, y_inicial;
 
-    printf("Digite as dimensões do tabuleiro (N M): ");
+    printf("Digite as DimenÃ§Ãµes do tabuleiro (N M): ");
     
     if (scanf("%d %d", &N, &M) != 2 || N <= 0 || M <= 0) {
-        printf("Dimensões inválidas!\n");
+        printf("DimenÃ§Ãµes invÃ¡lidas!\n");
         return 1;
     }
 
-    printf("Digite a posição inicial (ex: a1): ");
+    printf("Digite a posiÃ§Ã£o inicial (ex: a1): ");
     scanf("%2s", coord);
 
     if (!converter_coordenada_xadrez(coord, N, M, &x_inicial, &y_inicial)) {
-        printf("Posição inicial inválida!\n");
+        printf("posiÃ§Ã£o inicial invÃ¡lida!\n");
         return 1;
     }
 
     if (!resolver_passeio(N, M, x_inicial, y_inicial)) {
-        printf("\nNão foi possível encontrar um passeio do cavalo para este tabuleiro e posição inicial.\n");
+        printf("\nNÃ£o foi possÃ­vel encontrar um passeio do cavalo para este tabuleiro e posiÃ§Ã£o inicial.\n");
     }
 
     return 0;
 }
 
-// Converte notação de xadrez (ex: "a1") para coordenadas de matriz (0-based)
+// Converte notaÃ§Ã£o de xadrez (ex: "a1") para coordenadas de matriz (0-based)
 bool converter_coordenada_xadrez(const char *coord, int N, int M, int *x, int *y) {
 	
     if (strlen(coord) != 2) return false;
@@ -62,37 +65,39 @@ bool converter_coordenada_xadrez(const char *coord, int N, int M, int *x, int *y
     // Converte coluna (letra) para x (0-based)
     *x = coluna - 'a';
     
-    // Converte linha (número) para y (0-based)
+    // Converte linha (nï¿½mero) para y (0-based)
     *y = linha - '1';
     
-    // Verifica se as coordenadas estão dentro do tabuleiro
+    // Verifica se as coordenadas estï¿½o dentro do tabuleiro
     return (*x >= 0 && *x < M && *y >= 0 && *y < N);
 }
 
-// Função principal para resolver o passeio do cavalo
+// FunÃ§Ã£o principal para resolver o passeio do cavalo
+// Retorna true se um passeio for encontrado, false caso contrÃ¡rio
 bool resolver_passeio(int N, int M, int x_inicial, int y_inicial) {
 	
-    // Aloca memória para o caminho e tabuleiro visitado
+    // Aloca memÃ³ria para o caminho e tabuleiro visitado
     int *caminho = (int *)malloc(N * M * 2 * sizeof(int));
     bool *visitado = (bool *)calloc(N * M, sizeof(bool));
 
-    // Inicializa a posição inicial
+    // Inicializa a posiÃ§Ã£o inicial
     caminho[0] = x_inicial;
     caminho[1] = y_inicial;
     visitado[x_inicial * M + y_inicial] = true;
 
-    // Chama a função recursiva com a heurística de Warnsdorff
+    // Chama a funÃ§Ã£o recursiva com a heuristica de Warnsdorff
     if (passeio_cavalo(x_inicial, y_inicial, 1, N, M, caminho, visitado)) {
     	
         printf("\nPasseio do Cavalo encontrado:\n");
         imprimir_tabuleiro(N, M, caminho);
         
-        printf("\nCaminho em notação de xadrez:\n");
+        printf("\nCaminho em notaÃ§Ã£o de xadrez:\n");
         imprimir_caminho_xadrez(N, M, caminho);
         
         free(caminho);
         free(visitado);
         
+        // Libera a memÃ³ria alocada e retorna true
         return true;
     }
 
@@ -102,7 +107,7 @@ bool resolver_passeio(int N, int M, int x_inicial, int y_inicial) {
     return false;
 }
 
-// Imprime o caminho em notação de xadrez
+// Imprime o caminho em notaÃ§Ã£o de xadrez
 void imprimir_caminho_xadrez(int N, int M, int *caminho) {
 	
     int total_passos = N * M;
@@ -111,13 +116,13 @@ void imprimir_caminho_xadrez(int N, int M, int *caminho) {
         int x = caminho[passo * 2];
         int y = caminho[passo * 2 + 1];
         
-        // Converte coordenadas de matriz para notação de xadrez
+        // Converte coordenadas de matriz para notaÃ§Ã£o de xadrez
         char coluna = 'a' + x;
         int linha = y + 1;
         
         printf("Passo %2d: %c%d", passo + 1, coluna, linha);
         
-        // Quebra de linha para melhor visualização
+        // Quebra de linha para melhor visualizaï¿½ï¿½o
         if ((passo + 1) % 5 == 0 || passo == total_passos - 1) {
             printf("\n");
         } else {
@@ -126,7 +131,7 @@ void imprimir_caminho_xadrez(int N, int M, int *caminho) {
     }
 }
 
-// Função recursiva com heurística de Warnsdorff
+// FunÃ§Ã£o recursiva com heuristica de Warnsdorff
 bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *visitado) {
 	
     if (passo == N * M) {
@@ -135,6 +140,7 @@ bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *v
 
     int ordem[8] = {0, 1, 2, 3, 4, 5, 6, 7};
     
+    // Ordena os movimentos com base na heuristica de Warnsdorff
     ordenar_movimentos(x, y, N, M, visitado, ordem);
 
     for (int i = 0; i < 8; i++) {
@@ -144,6 +150,9 @@ bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *v
         int ny = y + movimentos[movimento][1];
 
         if (posicao_valida(nx, ny, N, M) && !visitado[nx * M + ny]) {
+
+            // Marca a nova posiÃ§Ã£o como visitada
+            // E adiciona ao caminho
             visitado[nx * M + ny] = true;
             caminho[passo * 2] = nx;
             caminho[passo * 2 + 1] = ny;
@@ -152,6 +161,9 @@ bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *v
                 return true;
             }
 
+            // Backtracking
+            // Desmarca a posiÃ§Ã£o visitada
+            // E retorna ao passo anterior para tentar outro movimento
             visitado[nx * M + ny] = false;
         }
     }
@@ -159,11 +171,12 @@ bool passeio_cavalo(int x, int y, int passo, int N, int M, int *caminho, bool *v
     return false;
 }
 
+// Verifica se a posiÃ§Ã£o (x, y) Ã© vÃ¡lida dentro do tabuleiro N x M
 bool posicao_valida(int x, int y, int N, int M) {
     return (x >= 0 && x < M && y >= 0 && y < N);
 }
 
-//Contabiliza os movimentos válidos
+//Contabiliza os movimentos vÃ¡lidos
 int contar_movimentos_validos(int x, int y, int N, int M, bool *visitado) {
 	
     int count = 0;
@@ -185,20 +198,23 @@ int contar_movimentos_validos(int x, int y, int N, int M, bool *visitado) {
 void ordenar_movimentos(int x, int y, int N, int M, bool *visitado, int *ordem) {
 	
     int counts[8];
-    
+    // Ordena os movimentos com base no nÃºmero de movimentos vÃ¡lidos a partir de cada posiÃ§Ã£o
     for (int i = 0; i < 8; i++) {
     	
         int nx = x + movimentos[i][0];
         int ny = y + movimentos[i][1];
         
+        // Conta os movimentos vÃ¡lidos a partir da nova posiÃ§Ã£o
+        // Se a nova posiÃ§Ã£o for invÃ¡lida ou jÃ¡ visitada, atribui um valor alto
         if (posicao_valida(nx, ny, N, M) && !visitado[nx * M + ny]) {
             counts[i] = contar_movimentos_validos(nx, ny, N, M, visitado);
         } else {
-            counts[i] = 9;
+            counts[i] = 9; // Um valor alto para indicar que o movimento nÃ£o Ã© vÃ¡lido	
         }
         
     }
     
+    // Ordena os Ã­ndices dos movimentos com base nos contadores
     for (int i = 0; i < 7; i++) {
     	
         int min_idx = i;
@@ -209,6 +225,8 @@ void ordenar_movimentos(int x, int y, int N, int M, bool *visitado, int *ordem) 
             }
         }
         
+        // Troca os Ã­ndices na ordem e nos contadores
+        // Isso garante que os movimentos com menos opÃ§Ãµes vÃ¡lidas venham primeiro
         int temp = ordem[i];
         ordem[i] = ordem[min_idx];
         ordem[min_idx] = temp;
@@ -222,7 +240,7 @@ void ordenar_movimentos(int x, int y, int N, int M, bool *visitado, int *ordem) 
 
 void imprimir_tabuleiro(int N, int M, int *caminho) {
 	
-    int tabuleiro[M][N]; // Invertido para corresponder à notação de xadrez
+    int tabuleiro[M][N]; // Invertido para corresponder ï¿½ notaÃ§Ã£o de xadrez
     
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
@@ -245,7 +263,7 @@ void imprimir_tabuleiro(int N, int M, int *caminho) {
     }
     printf("\n");
     
-    // Imprime tabuleiro com números das linhas
+    // Imprime tabuleiro com nï¿½meros das linhas
     for (int j = N - 1; j >= 0; j--) {
         printf("%2d ", j + 1);
         for (int i = 0; i < M; i++) {
